@@ -68,4 +68,40 @@ Autorização para desconto não pode ser uma regra que existe apenas "no papel"
 - O fechamento de caixa deve exibir o total de descontos segmentado por motivo, para que uma quebra de caixa possa ser investigada por causa, não apenas por valor total.
 
 ## 3. Caixa fechando com diferença de valor
-*(em construção)*
+
+### 🔍 Problema real observado
+No fechamento de caixa, o valor conferido (dinheiro físico + comprovantes) não bate com o que o sistema esperava ter recebido. Isso gera quebra de caixa — falta ou sobra de valor — e retrabalho para identificar onde está o erro, muitas vezes sem sucesso.
+
+### 🧩 Causas raiz identificadas
+
+Esse é o problema mais complexo dos três documentados até aqui porque a loja trabalha com múltiplas formas de pagamento, e cada uma tem seu próprio processo de registro e seu próprio ponto de falha:
+
+**a) TEF (débito e crédito à vista) — falha na emissão do comprovante**
+A maquininha deveria emitir automaticamente um comprovante (filipeta) indicando a forma de pagamento. Na prática, duas falhas comuns: às vezes a filipeta simplesmente não é impressa (o sistema tem uma opção de imprimir ou não, tanto do TEF quanto da Nota Fiscal, e às vezes essa etapa é pulada); às vezes é impressa, mas não indica claramente se foi débito ou crédito, exigindo verificação manual depois.
+
+**b) Crédito parcelado — depende inteiramente de lançamento manual**
+Diferente do TEF à vista, o parcelamento não gera comprovante automático — precisa ser lançado manualmente no sistema, na categoria correta. Qualquer esquecimento ou erro de lançamento aqui não tem nenhuma verificação cruzada automática.
+
+**c) PIX — dois fluxos diferentes, com riscos diferentes**
+- **PIX via maquininha**: gera um código (CV) que identifica o comprovante, usado depois pela área financeira para conferência quando o malote do caixa sobe para o escritório.
+- **PIX via link** (gerado pelo sistema do banco para o cliente): não gera TEF nem CV nenhum. Precisa ser lançado manualmente no sistema, precisa emitir Nota Fiscal, e precisa ser anotado manualmente no caixa como PIX para efeito de contagem. Se qualquer uma dessas três ações for esquecida, a venda existe para o cliente, mas não existe rastro nenhum no fechamento.
+
+**d) iFood/delivery — sem integração com o sistema**
+Como não existe integração entre o iFood e o sistema da loja, essa venda é lançada manualmente como se fosse "crediário" e somada à parte. Isso significa que o valor do iFood no fechamento depende 100% de alguém lembrar de lançar — não existe nenhuma forma de o sistema flagar uma venda do iFood que não foi lançada.
+
+**e) Ausência de verificação cruzada automática**
+Em todas as categorias acima, a conferência final é uma soma manual: cada forma de pagamento (TEF, parcelado, PIX, iFood) é somada individualmente e depois tudo é somado junto para comparar com o valor que o sistema esperava. Qualquer erro em qualquer uma das categorias só aparece nesse momento final — não há um alerta no momento em que o erro acontece (ex: uma venda registrada sem forma de pagamento definida).
+
+**Observação sobre trocas:** trocas de produto (devolução) aparecem no fechamento como um registro informativo — o total de trocas é somado e exibido, mas não entra na soma que precisa bater com o valor financeiro do caixa. É importante que o sistema mantenha essa distinção clara, para não ser confundido com uma categoria de conferência de valor.
+
+### 📏 Regra de negócio derivada
+Toda venda precisa sair do PDV já com a forma de pagamento claramente definida — sem depender de etapas frágeis, como a impressão de um comprovante que pode falhar ou não acontecer, nem de um lançamento manual feito à parte, sem nenhuma conferência depois. Cada forma de pagamento (TEF, parcelado, PIX, iFood) precisa deixar um registro claro no sistema, com informação suficiente para ser conferido depois — mesmo quando não existe integração automática com o meio de pagamento usado.
+
+### ⚙️ Requisitos de sistema
+- A impressão de comprovante (TEF e Nota Fiscal) não deveria ser uma opção descartável no fluxo da venda — ou deve ser obrigatória, ou o sistema deve manter um registro digital equivalente mesmo quando o comprovante físico não é impresso.
+- O comprovante de TEF deve sempre indicar claramente débito ou crédito; se a integração com a maquininha permitir capturar essa informação diretamente (em vez de depender da impressão), o risco de comprovante ambíguo desaparece.
+- Toda venda lançada manualmente (parcelado, PIX via link, iFood) deve exigir a seleção obrigatória da forma de pagamento e, quando aplicável, um identificador (como o código CV) antes de a venda ser considerada concluída.
+- Vendas de PIX via link devem ter um fluxo guiado único que amarre as três ações (lançar a venda, emitir a Nota Fiscal, marcar como PIX na contagem) em vez de depender de três lembranças manuais separadas.
+- Enquanto não houver integração direta com o iFood, o sistema deveria ao menos permitir o registro estruturado dessas vendas em categoria própria (não misturada genericamente com "crediário" comum), facilitando a conferência e abrindo caminho para uma futura integração automática.
+- O fechamento de caixa deve exibir o total esperado por categoria de pagamento (TEF débito, TEF crédito, parcelado, PIX maquininha, PIX link, iFood) lado a lado com o valor conferido, para que a divergência seja localizada por categoria — não apenas como uma diferença total sem origem clara.
+- O total de trocas deve aparecer no fechamento como informação separada, sem ser somado ao valor financeiro que precisa bater — evitando que uma troca seja confundida com uma divergência de caixa.
