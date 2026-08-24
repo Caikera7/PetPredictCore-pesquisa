@@ -37,7 +37,35 @@ O estoque exibido para decisão de venda **nunca deve depender de um único even
 ---
 
 ## 2. Desconto aplicado sem autorização
-*(em construção)*
+
+### 🔍 Problema real observado
+Descontos são aplicados no PDV por funcionários sem a autorização que deveria ser exigida, sem limite de valor respeitado, e muitas vezes sem relação com uma causa legítima (avaria, vencimento). Isso só é percebido — quando é percebido — no fechamento de caixa, na forma de quebra de caixa.
+
+### 🧩 Causas raiz identificadas
+
+Diferente do problema de estoque, aqui a regra formal já existe: o sistema prevê que caixa aberto como funcionário exija autorização (senha de gerente ou líder) para conceder desconto, enquanto caixa aberto como gerente tem liberdade. O problema não é ausência de regra — é **regra existente que não está sendo aplicada na operação real**.
+
+**a) Controle de autorização não ativado na prática**
+Mesmo o sistema prevendo a exigência de senha para desconto de funcionário, na loja essa trava não estava em uso — o desconto saía livre, independente de quem estivesse operando o caixa.
+
+**b) Ausência de limite de valor no sistema**
+Não existe um teto de desconto configurado. A referência de "até 50%" é uma prática informal, não uma regra imposta pelo sistema — e mesmo essa referência só deveria valer para causas específicas (vencimento, avaria), não para qualquer motivo.
+
+**c) Motivo do desconto não é diferenciado**
+Desconto por falta de troco, desconto para "agradar" o cliente e desconto por causa legítima de produto (avaria, vencimento) parecem ser lançados da mesma forma, sem um campo que diferencie a causa. Isso dificulta até para a própria gestão entender, depois, se o desconto teve uma razão operacional real ou foi decisão informal do momento.
+
+**d) Detecção tardia**
+A consequência (quebra de caixa) só aparece no fechamento — não existe um alerta no momento em que o desconto está sendo aplicado fora do padrão esperado.
+
+### 📏 Regra de negócio derivada
+Autorização para desconto não pode ser uma regra que existe apenas "no papel" — ela precisa ser **imposta pelo sistema no momento da ação**, não verificada depois. Além disso, todo desconto deve ter uma causa identificável e limites diferentes dependendo dessa causa, para que seja possível distinguir desconto operacional legítimo de desconto por decisão informal.
+
+### ⚙️ Requisitos de sistema
+- A exigência de autorização (senha de gerente/líder) para desconto de funcionário deve ser uma trava do sistema, não uma configuração opcional que pode ficar desativada sem visibilidade da gestão.
+- Todo desconto deve exigir a seleção de um motivo (ex: avaria, vencimento, troco insuficiente, cortesia) — o valor livre sem causa associada não deveria ser permitido.
+- O sistema deve permitir configurar limites de desconto diferentes por motivo (ex: até 50% para avaria, um teto bem menor ou zero para "cortesia"), em vez de um limite único genérico.
+- Descontos aplicados fora do padrão esperado (sem motivo, acima do limite, ou por funcionário sem autorização) devem gerar um registro sinalizado para a gestão revisar — não só aparecer disperso no relatório de fechamento de caixa.
+- O fechamento de caixa deve exibir o total de descontos segmentado por motivo, para que uma quebra de caixa possa ser investigada por causa, não apenas por valor total.
 
 ## 3. Caixa fechando com diferença de valor
 *(em construção)*
