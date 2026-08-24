@@ -27,17 +27,23 @@ Esse repositório nasceu da tentativa de traduzir esses problemas reais em algo 
 
 ## 🗂️ Como o repositório está organizado
 
-O conteúdo é dividido por área operacional, espelhando os módulos de um sistema de gestão de petshop:
+O conteúdo é dividido em duas pastas principais, cada uma com um público-alvo definido — isso evita textos que tentam servir todo mundo e acabam não servindo bem ninguém:
 
 ```
-📁 pdv               → ponto de venda: regras de venda, erros comuns no caixa
-📁 estoque           → controle de estoque, divergências, estoque preditivo
-📁 banho-e-tosa      → agendamento, fluxo de atendimento, gargalos
-📁 financeiro        → fluxo de caixa, precificação, erros financeiros comuns
-📁 para-donos        → guias práticos de gestão, sem linguagem técnica
+📁 para-devs/
+   📁 pdv               → regras de venda, erros comuns no caixa
+   📁 estoque           → controle de estoque, divergências, estoque preditivo
+   📁 banho-e-tosa      → agendamento, fluxo de atendimento, gargalos
+   📁 financeiro        → fluxo de caixa, precificação, erros financeiros comuns
+
+📁 para-donos/          → guias práticos de gestão, sem linguagem técnica
 ```
 
-Cada área tem um documento central, `de-problema-para-regra.md`, que segue sempre a mesma lógica:
+**`/para-devs`** é escrito para desenvolvedores cada subpasta representa um módulo do sistema, e o foco é o raciocínio completo, do problema real até o requisito técnico de sistema. Espera alguma familiaridade com vocabulário de desenvolvimento.
+
+**`/para-donos`** é escrito para quem gerencia a operação no dia a dia sem termos técnicos, com foco em "como evitar isso na prática", com ou sem sistema envolvido.
+
+Dentro de cada módulo em `/para-devs`, o documento central é o `de-problema-para-regra.md`, que segue sempre a mesma lógica:
 
 1. **🔍 Problema real observado** — o que acontece na prática
 2. **🧩 Causa raiz** — por que isso acontece
