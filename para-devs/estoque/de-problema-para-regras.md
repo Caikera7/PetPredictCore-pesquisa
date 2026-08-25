@@ -95,3 +95,39 @@ Contagem de estoque não pode ser um evento solto — precisa ter cronograma, pr
 - Vale pensar se o lançamento direto no sistema (sem papel) vai depender de dispositivo móvel/coletor — isso influencia o desenho de interface e pode exigir uma etapa de transição enquanto a operação se adapta.
 - O campo de "motivo da divergência" deve ser um catálogo pré-definido (igual sugerido no módulo de PDV para desconto), permitindo depois analisar quais motivos são mais recorrentes — texto livre dificulta esse tipo de análise.
 - Esse processo de contagem estruturada se conecta diretamente com o caso de "produto parado sem giro" e com "transferências" — a mesma base de dado de estoque teórico x físico alimenta os três. Vale desenhar pensando em reaproveitamento, não como módulos isolados.
+
+---
+
+## 3. Estoque mínimo não definido corretamente
+
+### 🔍 Problema real observado
+A loja só percebe que um produto está acabando quando ele já está com 1 ou 2 unidades — muitas vezes o próprio cliente no caixa é quem revela a falta. O pedido de reposição só é feito nesse momento, o que significa que o produto frequentemente fica em falta pelo tempo que o fornecedor demora para entregar.
+
+### 🧩 Causa raiz identificada
+
+O critério usado para decidir "quando pedir mais" é um número fixo e genérico (pedir quando sobrar 1 a 2 unidades), aplicado da mesma forma para qualquer produto — sem considerar dois fatores que deveriam definir esse número individualmente:
+
+- **Quanto o produto vende por dia** (velocidade de saída)
+- **Quanto tempo o fornecedor demora para entregar depois que o pedido é feito** (prazo de reposição)
+
+Um produto que vende rápido e tem fornecedor lento precisa de um estoque mínimo bem mais alto do que um produto que vende devagar e tem fornecedor rápido. Usar o mesmo número (1 a 2 unidades) para todo produto ignora essa diferença, e o resultado é sempre o mesmo: o pedido é feito tarde demais para produtos de giro rápido.
+
+### 📏 Regra de negócio derivada
+O estoque mínimo de cada produto não deve ser um número fixo aplicado igualmente a todos — deve ser calculado considerando a velocidade de venda daquele produto específico e o tempo que o fornecedor leva para entregar. O sistema deve avisar a necessidade de reposição a tempo do pedido chegar antes do produto zerar, não depois.
+
+### ⚙️ Requisitos de sistema
+- Cada produto deve ter um campo de estoque mínimo, mas esse valor deve poder ser calculado automaticamente a partir da média de venda diária e do prazo de entrega do fornecedor — não digitado arbitrariamente.
+- O sistema deve alertar a necessidade de reposição assim que o estoque atingir o mínimo calculado, não apenas quando estiver prestes a zerar.
+- Deve ser possível revisar e ajustar o prazo de entrega por fornecedor, já que esse prazo pode mudar e afeta diretamente o cálculo do estoque mínimo de todos os produtos daquele fornecedor.
+- O sistema deve recalcular o estoque mínimo periodicamente, já que a velocidade de venda de um produto pode mudar ao longo do tempo (sazonalidade, mudança de demanda).
+
+### ✅ Critérios de aceite
+- **Dado** que um produto tem uma média de venda diária e um prazo de entrega de fornecedor cadastrados, **quando** o sistema calcula o estoque mínimo, **então** esse valor deve refletir a quantidade necessária para cobrir as vendas esperadas durante o prazo de entrega, e não um número fixo genérico.
+- **Dado** que o estoque de um produto atinge o valor mínimo calculado, **quando** essa condição é detectada, **então** o sistema deve gerar um alerta de reposição automaticamente, antes de o produto zerar.
+- **Dado** que o prazo de entrega de um fornecedor é atualizado, **quando** essa mudança é salva, **então** o sistema deve recalcular o estoque mínimo de todos os produtos vinculados a esse fornecedor.
+- **Dado** que a velocidade de venda de um produto muda significativamente (ex: aumenta por sazonalidade), **quando** o sistema reprocessa os dados de venda, **então** o estoque mínimo desse produto deve ser ajustado para refletir a nova média.
+
+### ⚠️ Pontos de atenção na implementação
+- É importante permitir um ajuste manual por cima do cálculo automático — o dono ou gestor pode ter um motivo prático para querer um mínimo diferente (ex: margem de segurança extra para um produto muito importante), então o cálculo automático deve ser um ponto de partida sugerido, não uma regra travada sem exceção.
+- O cálculo de "velocidade de venda" precisa lidar bem com produtos novos (sem histórico suficiente) e com produtos sazonais (cuja média de venda de um mês não representa o ano todo) — vale considerar um período de cálculo configurável em vez de uma janela fixa única para todos os produtos.
+- Esse cálculo de estoque mínimo compartilha a mesma base de dado de giro de estoque usada nos casos de "produto parado" e "transferências" documentados anteriormente — reforça a importância de centralizar essa métrica de velocidade de venda em um único lugar do sistema, em vez de recalculá-la separadamente em cada módulo.
