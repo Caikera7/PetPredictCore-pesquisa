@@ -20,7 +20,7 @@ Esse repositório nasceu da tentativa de traduzir esses problemas reais em algo 
 
 | Público | O que encontra aqui |
 |---|---|
-| 🧑‍💻 **Desenvolvedores** | O *porquê* por trás das regras de negócio de sistemas de gestão para petshop (PDV, estoque, agendamento, financeiro) — não só o *como* técnico |
+| 🧑‍💻 **Desenvolvedores** | O *porquê* por trás das regras de negócio de sistemas de gestão para petshop — não só o *como* técnico |
 | 🐕 **Donos e gestores de petshop** | Onde os processos costumam falhar e como organizar a operação para reduzir erros, sem precisar entender de tecnologia |
 
 ---
@@ -31,24 +31,39 @@ O conteúdo é dividido em duas pastas principais, cada uma com um público-alvo
 
 ```
 📁 para-devs/
-   📁 pdv               → regras de venda, erros comuns no caixa
-   📁 estoque           → controle de estoque, divergências, estoque preditivo
-   📁 banho-e-tosa      → agendamento, fluxo de atendimento, gargalos
-   📁 financeiro        → fluxo de caixa, precificação, erros financeiros comuns
+   📁 pdv                    → regras de venda, erros comuns no caixa
+   📁 estoque                → controle de estoque, divergências, estoque preditivo
+      📁 transferencias      → transferência de estoque entre lojas
+   📁 banho-e-tosa           → agendamento, fluxo de atendimento, gargalos
+   📁 financeiro             → fluxo de caixa, contas a pagar, precificação
+   📁 cashback               → regras de fidelização e cashback
+   📁 entregas-e-deliverys   → delivery, canais externos (ex: iFood), logística de entrega
 
-📁 para-donos/          → guias práticos de gestão, sem linguagem técnica
+📁 para-donos/
+   📁 banho-e-tosa
+   📁 controle-de-vencimento
+   📁 entregas-e-deliverys
+   📁 estoque
+      📁 contagem
+      📁 transferencia
+   📁 financeiro
+   📁 precificacao
 ```
 
-**`/para-devs`** é escrito para desenvolvedores cada subpasta representa um módulo do sistema, e o foco é o raciocínio completo, do problema real até o requisito técnico de sistema. Espera alguma familiaridade com vocabulário de desenvolvimento.
+**`/para-devs`** é escrito para desenvolvedores — cada subpasta representa um módulo do sistema, e o foco é o raciocínio completo, do problema real até o requisito técnico de sistema. Espera alguma familiaridade com vocabulário de desenvolvimento.
 
-**`/para-donos`** é escrito para quem gerencia a operação no dia a dia sem termos técnicos, com foco em "como evitar isso na prática", com ou sem sistema envolvido.
+**`/para-donos`** é escrito para quem gerencia a operação no dia a dia — sem termos técnicos, com foco em "como evitar isso na prática", com ou sem sistema envolvido. As subpastas aqui podem não espelhar exatamente as de `/para-devs` uma a uma — o conteúdo é organizado pela forma como o dono de petshop pensa sobre o problema, não necessariamente pela estrutura de módulos do sistema.
 
 Dentro de cada módulo em `/para-devs`, o documento central é o `de-problema-para-regra.md`, que segue sempre a mesma lógica:
 
 1. **🔍 Problema real observado** — o que acontece na prática
 2. **🧩 Causa raiz** — por que isso acontece
 3. **📏 Regra de negócio derivada** — o que precisa ser garantido para o problema não se repetir
-4. **⚙️ Requisito de sistema** — como isso se traduz em algo que um sistema deveria garantir (sem código, sem implementação)
+4. **⚙️ Requisito de sistema** — como isso se traduz em algo que um sistema deveria garantir
+5. **✅ Critérios de aceite** — condições testáveis, no formato Dado/Quando/Então, para apoiar a implementação
+6. **⚠️ Pontos de atenção na implementação** — armadilhas técnicas específicas a considerar
+
+Em `/para-donos`, cada arquivo segue uma lógica mais direta: o problema, por que acontece, e passos práticos para reduzir o erro — com ou sem sistema.
 
 ---
 
@@ -60,6 +75,4 @@ Este repositório é a **camada de raciocínio**. O [PetPredictCore](https://git
 
 ## 🤝 Como contribuir
 
-Por enquanto este repositório é mantido por mim, mas a estrutura já está pensada para receber contribuições no futuro — de desenvolvedores e de donos de petshop que queiram compartilhar situações reais.
-
-Se você tem uma experiência (boa ou ruim) de gestão de petshop que poderia virar uma regra documentada aqui, [abra uma issue](../../issues).
+Por enquanto este repositório é mantido por mim, mas a estrutura já está pensada para receber contribuições no futuro — de desenvolvedores e de donos de petshop que queiram compartilhar situações reais. Se você tem uma experiência (boa ou ruim) de gestão de petshop que poderia virar uma regra documentada aqui, [abra uma issue](../../issues).
