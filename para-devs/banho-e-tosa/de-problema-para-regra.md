@@ -9,7 +9,7 @@ Este documento reúne problemas reais observados na operação de banho e tosa d
 ## 1. Ocorrências durante o atendimento sem registro formal
 
 ### 🔍 Problema real observado
-Quando acontece uma ocorrência durante o banho ou tosa um corte na pelagem, um machucado, qualquer intercorrência grave com o pet a loja tem uma resposta operacional (avisar o superior, encaminhar para uma unidade com clínica, tratar o tutor com atenção, cautela e profissionalismo), mas não existe nenhum registro formal do que aconteceu: sem foto, sem ficha de ocorrência, sem histórico salvo em lugar nenhum.
+Quando acontece uma ocorrência durante o banho ou tosa — um corte na pelagem, um machucado, qualquer intercorrência com o pet — a loja tem uma resposta operacional (avisar o superior, encaminhar para uma unidade com clínica, tratar o tutor com atenção), mas não existe nenhum registro formal do que aconteceu: sem foto, sem ficha de ocorrência, sem histórico salvo em lugar nenhum.
 
 ### 🧩 Causas raiz identificadas
 
@@ -80,3 +80,40 @@ O tempo reservado na agenda para cada atendimento deve refletir a realidade do s
 - O cálculo de duração estimada precisa de um período inicial de calibração — os primeiros tempos estimados provavelmente não vão bater exatamente com a realidade, e o sistema deve permitir ajuste manual pelo profissional até que o cálculo automático fique mais confiável (se essa abordagem automática for validada como viável).
 - Vale considerar se cada profissional tem seu próprio ritmo de atendimento (dois tosadores diferentes podem demorar tempos diferentes para o mesmo porte de pet) — isso pode exigir que a estimativa considere não só o pet, mas também quem vai atender.
 - A comunicação de "encaixe" ao tutor precisa ser clara sobre o motivo (evitar parecer descaso) — o texto da mensagem/aviso deve deixar claro que é uma prioridade por conflito de agenda, mantendo a transparência que já é um valor do projeto (reforçado no caso de ocorrências, documentado anteriormente).
+
+---
+
+## 3. Atraso no atendimento sem comunicação estruturada
+
+### 🔍 Problema real observado
+Atendimentos ultrapassam o tempo previsto — por porte do pet, dificuldade durante o serviço (agitação do animal) ou outros fatores — e esse atraso se propaga para os agendamentos seguintes. Quando isso acontece, o aviso ao tutor existe, mas de forma informal, sem um tom profissional definido e sem rapidez — muitas vezes sem nenhum aviso automático, e sem que todos os tutores afetados pelo efeito em cadeia sejam avisados de uma vez.
+
+### 🧩 Causas raiz identificadas
+
+**a) Atraso pontual sem processo de propagação de aviso**
+Quando um atendimento atrasa, o efeito passa para os próximos da fila — mas não existe uma prática consistente de avisar automaticamente todos os tutores impactados. Cada aviso, quando acontece, depende de alguém lembrar de avisar um por um.
+
+**b) Comunicação sem padrão de profissionalismo**
+O aviso, quando feito, não segue um formato ou tom definido — fica a critério de quem está atendendo no momento, o que gera uma experiência inconsistente para o tutor.
+
+**c) Ausência de conexão com a causa do atraso**
+Esse problema está diretamente conectado ao caso 2 já documentado (conflito de agenda por estimativa de duração incorreta) — sem uma estimativa de tempo mais realista por pet, o atraso tende a se repetir com frequência, tornando a comunicação de atraso uma rotina em vez de exceção.
+
+### 📏 Regra de negócio derivada
+Quando um atendimento ultrapassa o tempo previsto, o sistema deve apoiar o aviso a todos os tutores impactados pela fila, de forma rápida e com um padrão de comunicação profissional definido — sem depender de alguém lembrar de avisar cada um manualmente.
+
+### ⚙️ Requisitos de sistema
+- O sistema deve detectar quando um atendimento em andamento ultrapassa o tempo estimado, e identificar automaticamente quais agendamentos seguintes são impactados.
+- Deve existir um modelo de mensagem padrão (configurável) para avisar o tutor sobre atraso, garantindo tom consistente independentemente de quem dispara o aviso.
+- O aviso de atraso deve poder ser enviado a todos os tutores impactados de uma vez, não um por um manualmente.
+- O sistema deve registrar o histórico de atrasos por profissional e por tipo de serviço, alimentando o ajuste de estimativa de duração mencionado no caso anterior.
+
+### ✅ Critérios de aceite
+- **Dado** que um atendimento em andamento ultrapassa o tempo estimado, **quando** esse limite é atingido, **então** o sistema deve identificar automaticamente os próximos agendamentos afetados na fila.
+- **Dado** que existem tutores impactados por um atraso, **quando** o responsável decide notificar, **então** o sistema deve permitir o envio da mensagem de atraso para todos os afetados de uma só vez, usando um modelo de texto padrão.
+- **Dado** que um atraso é registrado, **quando** o histórico do profissional ou serviço é consultado, **então** esse atraso deve aparecer contabilizado, contribuindo para o ajuste futuro da estimativa de duração.
+
+### ⚠️ Pontos de atenção na implementação
+- O modelo de mensagem padrão deve ter espaço para personalização mínima (ex: nome do tutor, novo horário estimado), mesmo sendo um texto pré-definido — mensagem genérica demais pode soar automática e impessoal.
+- Vale decidir se o aviso é disparado automaticamente pelo sistema assim que o atraso é detectado, ou se depende de uma confirmação humana antes do envio — isso evita, por exemplo, avisos disparados por atrasos muito pequenos que nem chegam a impactar de fato o próximo horário.
+- Esse caso reforça a importância de tratar bem o cálculo de duração do caso 2 — quanto mais preciso o cálculo, menos esse fluxo de aviso de atraso precisa ser acionado na prática.
